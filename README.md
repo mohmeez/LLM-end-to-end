@@ -10,7 +10,7 @@ This project leverages the power of Large Language Models (LLMs) using Langchain
 * Real-world Data: Utilizes a CSV file containing sample FAQs from Durham College's website.
 * Langchain + Google Palm: Employs LLMs for a robust Q&A system.
 * Streamlit Interface: Provides an intuitive UI for users to submit questions and receive answers.
-* Huggingface Instructor Embeddings: Uses state-of-the-art text embeddings for accurate vector representation of text.
+* Huggingface Instructor Embeddings: Uses text embeddings for accurate vector representation of text.
 * FAISS Vector Database: Stores text embeddings in a locally hosted vector database for efficient retrieval of answers.
 
 # Installation
