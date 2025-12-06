@@ -57,26 +57,26 @@ def ensure_vector_db():
 
 def answer_question(question: str, vectordb) -> str:
     """Retrieve relevant docs and ask OpenAI for an answer."""
-    retriever = vectordb.as_retriever()
-    docs = retriever.get_relevant_documents(question)
+    # Directly use FAISS similarity search
+    docs = vectordb.similarity_search(question, k=4)
 
     context = "\n\n".join(d.page_content for d in docs)
 
     prompt = f"""
-You are an assistant answering questions about Durham College.
+    You are an assistant answering questions about Durham College.
 
-Use the context below when it is relevant. If the context does not give
-an exact answer, reply with a short, generic but helpful answer based on
-typical college practices. Do NOT say "I don't know" and do NOT invent
-specific names, numbers, or policies.
+    Use the context below when it is relevant. If the context does not give
+    an exact answer, reply with a short, generic but helpful answer based on
+    typical college practices. Do NOT say "I don't know" and do NOT invent
+    specific names, numbers, or policies.
 
-Context:
-{context}
+    Context:
+    {context}
 
-User question: {question}
+    User question: {question}
 
-Answer clearly in 2–4 sentences:
-"""
+    Answer clearly in 2–4 sentences:
+    """
 
     response = client.responses.create(
         model="gpt-4.1-mini",
@@ -85,5 +85,6 @@ Answer clearly in 2–4 sentences:
     )
 
     return response.output_text.strip()
+
 
 
