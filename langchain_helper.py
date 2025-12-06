@@ -1,20 +1,35 @@
 import os
-from langchain.llms import GooglePalm
-from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.embeddings import HuggingFaceInstructEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain_openai import OpenAI
+from langchain_community.document_loaders import CSVLoader
+from langchain_community.embeddings import HuggingFaceInstructEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_core.prompts import PromptTemplate
+from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+
 
 from dotenv import load_dotenv
-load_dotenv()  # take environment variables (google api key)
+load_dotenv()  # load environment variables from .env
 
-# Create Google Palm LLM model
-llm = GooglePalm(google_api_key=os.environ["GOOGLE_API_KEY"], temperature=0.1)
+# Create OpenAI LLM model
+llm = OpenAI(
+    openai_api_key=os.environ.get("OPENAI_API_KEY"),
+    temperature=0.1,
+    # change this to another instruct model if needed
+    model_name="gpt-5-nano",
+)
 
 # Initialize instructor embeddings using the Hugging Face model
-instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large")
-vectordb_file_path = "faiss_index"
+instructor_embeddings = HuggingFaceInstructEmbeddings(
+    model_name="hkunlp/instructor-large"
+)
+
+
+VECTORDb_FILE_PATH = "faiss_index"
+
+def ensure_vector_db():
+    """Create the FAISS index if it doesn't exist yet."""
+    if not os.path.exists(VECTORDb_FILE_PATH):
+        create_vector_db()
 
 def create_vector_db():
     # Load data from FAQ 
@@ -30,7 +45,8 @@ def create_vector_db():
 
 
 def get_question_answer_chain():
-    vectordb = FAISS.load_local(vectordb_file_path, instructor_embeddings)
+    ensure_vector_db()
+    vectordb = FAISS.load_local(VECTORDb_FILE_PATH, instructor_embeddings, allow_dangerous_deserialization=True)
 
     # Create a retriever for querying the vector database
     retriever = vectordb.as_retriever(score_threshold=0.7)
