@@ -1,7 +1,7 @@
 import streamlit as st
 from langchain_helper import ensure_vector_db, answer_question
 
-st.title("Durham College AnswerBot: Instant Help for Your Questions")
+st.title("Durham College FAQ Chatbot: Ask me anything!")
 
 
 @st.cache_resource(show_spinner="Building vector database (first run only)...")
