@@ -52,9 +52,15 @@ def get_question_answer_chain():
     # Create a retriever for querying the vector database
     retriever = vectordb.as_retriever(score_threshold=0.7)
     
-    prompt_template = """Given the folowing context and question, please provide an answer based on the context and do not make up any random answers.
-    provide as much text as possible from "response" section in the source document context without making as many changes.
-    If the answer is not found in the context, kindly state: "I don't know". Dont make up any answers.
+    prompt_template = """You are an assistant answering questions about Durham College.
+
+    Use the context below whenever it contains relevant information.
+    If the context does NOT clearly answer the question, give a short, generic answer
+    that does **not** invent specific names, numbers, or policies.
+
+    Examples of generic answers:
+    - "There are various food options and cuisines available on campus."
+    - "There are several services and resources available; students can choose what best fits their needs."
 
     CONTEXT: {context}
 
