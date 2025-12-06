@@ -1,11 +1,10 @@
 streamlit
-langchain
-openai
+langchain==0.2.11
+langchain-openai
+langchain-community
 python-dotenv
 faiss-cpu
 InstructorEmbedding
+sentence-transformers
 pandas
 numpy
-langchain-community
-InstructorEmbedding
-sentence-transformers
