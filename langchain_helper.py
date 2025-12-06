@@ -1,91 +1,89 @@
 import os
-from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 
+from openai import OpenAI
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_core.prompts import PromptTemplate
-from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+
+load_dotenv()
+
+# OpenAI client (reads OPENAI_API_KEY from env / Streamlit secrets)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Where the FAISS index will be stored
+VECTOR_DB_FILE_PATH = "faiss_index"
+
+# Smaller, faster embedding model
+EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
-from dotenv import load_dotenv
-load_dotenv()  # load environment variables from .env
+def _get_embeddings():
+    """Create the embedding model (same config for save/load)."""
+    return HuggingFaceInstructEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
-# Create OpenAI LLM model
-llm = ChatOpenAI(
-    openai_api_key=os.environ.get("OPENAI_API_KEY"),
-    temperature=0.1,
-    # change this to another instruct model if needed
-    model_name="gpt-5-nano",
-)
-
-# Initialize instructor embeddings using the Hugging Face model
-instructor_embeddings = HuggingFaceInstructEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
-
-VECTORDb_FILE_PATH = "faiss_index"
-
-def ensure_vector_db():
-    """Create the FAISS index if it doesn't exist yet."""
-    if not os.path.exists(VECTORDb_FILE_PATH):
-        create_vector_db()
 
 def create_vector_db():
-    # Load data from FAQ 
-    loader = CSVLoader(file_path='Durham_College_FAQ.csv', source_column="prompt")
-    data = loader.load()
+    """Create FAISS index from the CSV and save it locally."""
+    loader = CSVLoader(
+        file_path="Durham_College_FAQ.csv",
+        encoding="utf-8",
+    )
+    docs = loader.load()
 
-    # Create a FAISS instance for vector database from 'data'
-    vectordb = FAISS.from_documents(documents=data,
-                                    embedding=instructor_embeddings)
+    embeddings = _get_embeddings()
+    vectordb = FAISS.from_documents(documents=docs, embedding=embeddings)
+    vectordb.save_local(VECTOR_DB_FILE_PATH)
 
-    # Save vector database locally
-    vectordb.save_local(VECTORDb_FILE_PATH)
-
-
-def get_question_answer_chain():
-    ensure_vector_db()
-    vectordb = FAISS.load_local(VECTORDb_FILE_PATH, instructor_embeddings, allow_dangerous_deserialization=True)
-
-    # Create a retriever for querying the vector database
-    retriever = vectordb.as_retriever(score_threshold=0.7)
-    
-    prompt_template = """You are an assistant answering questions about Durham College.
-
-    Use the context below whenever it contains relevant information.
-    If the context does NOT clearly answer the question, give a short, generic answer
-    that does **not** invent specific names, numbers, or policies.
-
-    Examples of generic answers:
-    - "There are various food options and cuisines available on campus."
-    - "There are several services and resources available; students can choose what best fits their needs."
-
-    CONTEXT: {context}
-
-    QUESTION: {question}"""
-
-    PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-
-    chain_type_kwargs = {"prompt": PROMPT}
-    
-    
-    chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=retriever,
-    input_key="query",
-    return_source_documents=True,
-    chain_type_kwargs={"prompt": PROMPT})
-    
-    return chain 
+    return vectordb
 
 
-# if __name__ == "__main__":
-#     chain = get_question_answer_chain()
-    
-#     print(chain("How can I update my contact information?"))
-    
-if __name__ == "__main__":
-    create_vector_db()
+def ensure_vector_db():
+    """
+    Load existing FAISS index if present; otherwise build a new one.
+    Streamlit will call this once and reuse the result.
+    """
+    embeddings = _get_embeddings()
+
+    if os.path.isdir(VECTOR_DB_FILE_PATH):
+        return FAISS.load_local(
+            VECTOR_DB_FILE_PATH,
+            embeddings,
+            allow_dangerous_deserialization=True,
+        )
+    else:
+        return create_vector_db()
+
+
+def answer_question(question: str, vectordb) -> str:
+    """Retrieve relevant docs and ask OpenAI for an answer."""
+    retriever = vectordb.as_retriever()
+    docs = retriever.get_relevant_documents(question)
+
+    context = "\n\n".join(d.page_content for d in docs)
+
+    prompt = f"""
+You are an assistant answering questions about Durham College.
+
+Use the context below when it is relevant. If the context does not give
+an exact answer, reply with a short, generic but helpful answer based on
+typical college practices. Do NOT say "I don't know" and do NOT invent
+specific names, numbers, or policies.
+
+Context:
+{context}
+
+User question: {question}
+
+Answer clearly in 2–4 sentences:
+"""
+
+    response = client.responses.create(
+        model="gpt-4.1-mini",
+        input=prompt,
+        max_output_tokens=300,
+    )
+
+    return response.output_text.strip()
+
+
