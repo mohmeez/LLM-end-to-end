@@ -7,7 +7,8 @@ Question = st.text_input("Question: ")
 
 if Question:
     chain = get_question_answer_chain()
-    response = chain(Question)
+    response = chain.invoke({"query": Question})
+
     
     st.header("Answer: ")
     st.write(response["result"])

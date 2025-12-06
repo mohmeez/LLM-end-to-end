@@ -1,5 +1,6 @@
 import os
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
+
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -11,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()  # load environment variables from .env
 
 # Create OpenAI LLM model
-llm = OpenAI(
+llm = ChatOpenAI(
     openai_api_key=os.environ.get("OPENAI_API_KEY"),
     temperature=0.1,
     # change this to another instruct model if needed
@@ -41,7 +42,7 @@ def create_vector_db():
                                     embedding=instructor_embeddings)
 
     # Save vector database locally
-    vectordb.save_local(vectordb_file_path)
+    vectordb.save_local(VECTORDb_FILE_PATH)
 
 
 def get_question_answer_chain():
