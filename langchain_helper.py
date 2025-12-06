@@ -21,7 +21,7 @@ llm = ChatOpenAI(
 
 # Initialize instructor embeddings using the Hugging Face model
 instructor_embeddings = HuggingFaceInstructEmbeddings(
-    model_name="hkunlp/instructor-large"
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
 
