@@ -5,11 +5,22 @@ from openai import OpenAI
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import FAISS
-
+import streamlit as st
 load_dotenv()
 
-# OpenAI client (reads OPENAI_API_KEY from env / Streamlit secrets)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# 1) Try environment variable (for local use)
+# 2) Fall back to Streamlit secrets (for Streamlit Cloud)
+api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+
+if not api_key:
+    # Helpful error if you forgot to set it anywhere
+    raise RuntimeError(
+        "OPENAI_API_KEY is not set. "
+        "Set it in a .env file (local) or in Streamlit Secrets (cloud)."
+    )
+
+client = OpenAI(api_key=api_key)
 
 # Where the FAISS index will be stored
 VECTOR_DB_FILE_PATH = "faiss_index"
