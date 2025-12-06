@@ -1,11 +1,9 @@
-python==3.12.0
 streamlit
-langchain==0.2.11
-langchain-openai
 langchain-community
+openai>=1.40.0
 python-dotenv
 faiss-cpu
-InstructorEmbedding
 sentence-transformers
+InstructorEmbedding
 pandas
 numpy
