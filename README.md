@@ -1,4 +1,4 @@
-# LLM-end-to-end using Langchain and Open Ai
+# Retrieval -Augmented Generation (RAG) using Langchain and Open Ai
 # Live Demo :  https://mohmeez-llm-end-to-end-main-ytlged.streamlit.app/
 
 LLM Q&A Project with Durham College FAQs
