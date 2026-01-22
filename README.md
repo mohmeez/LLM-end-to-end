@@ -22,7 +22,7 @@ This project leverages the power of Large Language Models (LLMs) using Langchain
 * Get open api key from google and put it in the .env file and in streamlit secrets 
 
 # Usage
-To use this project, simply run the Streamlit app by typing (streamlit run main.py) in the terminal. This opens the web application where you can input your question. The system will search the vector database for the closest matching answer from the Durham College FAQs. If a relevant answer is found, it will be displayed; otherwise, the system will respond with "I do not know."
+To use this project, simply run the Streamlit app by typing (streamlit run main.py) in the terminal. This opens the web application where you can input your question. The system will search the vector database for the closest matching answer from the Durham College FAQs. If a relevant answer is found, it will be displayed; otherwise, the system will respond with a generic response.
 
 # Project Structure
 * langchain_helper.py --> This has the barebones of lanchain code.
