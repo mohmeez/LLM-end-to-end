@@ -94,7 +94,7 @@ def scrape_page(url: str, section: str) -> list[dict]:
         response = requests.get(url, headers=HEADERS, timeout=15)
         response.raise_for_status()
     except requests.RequestException as e:
-        print(f"  ⚠️  Could not fetch {url}: {e}")
+        print(f"Could not fetch {url}: {e}")
         return []
 
     soup = BeautifulSoup(response.text, "html.parser")
