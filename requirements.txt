@@ -7,3 +7,6 @@ sentence-transformers
 InstructorEmbedding
 pandas
 numpy
+requests
+beautifulsoup4
+langchain_huggingface
