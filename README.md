@@ -1,6 +1,10 @@
 # Ontario Tech University FAQ Chatbot using LangChain and OpenAI
 
 LLM-powered Q&A chatbot built on Ontario Tech University's admissions and registrar FAQs.
+<img width="973" height="585" alt="image" src="https://github.com/user-attachments/assets/c3304201-ff4a-4752-9961-25c02b5a258f" />
+<img width="992" height="516" alt="image" src="https://github.com/user-attachments/assets/6ca181ec-f407-497e-a83a-4143f409fd29" />
+
+
 
 # Overview
 This project leverages Large Language Models (LLMs) using LangChain and OpenAI's GPT-4o-mini to create a question-and-answer system based on FAQs scraped from Ontario Tech University's admissions and registrar websites. It utilizes HuggingFace embeddings for text vectorization and FAISS for efficient vector database storage. The system is designed to provide accurate answers to university-related queries while gracefully handling out-of-scope questions without hallucinating incorrect information. A user-friendly interface is provided by Streamlit.
